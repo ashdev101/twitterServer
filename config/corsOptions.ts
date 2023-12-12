@@ -1,7 +1,7 @@
 
 
 const allowedOrigins = [
-    'http://localhost:3000'
+    'https://tvtr.vercel.app/'
 ];
 
 export const corsOptions = {
