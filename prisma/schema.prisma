@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// A self-relation is a relation where a model is related to itself. For example, in a social media context, a user can follow other users, and other users can follow them back. This is a self-relation because it's all happening within the same User model.
+// Many-to-Many Self-Relations
+// In a many-to-many self-relation, an instance of a model can be associated with many instances of the same model, and vice versa. For example, a user can follow many users, and can also be followed by many users.
+// How to Define Many-to-Many Self-Relations with Prisma
+// With Prisma, you can define a many-to-many self-relation using the Prisma Schema Language. Here's a simple way to do it:
+
+// model User {
+//   id         Int       @id @default(autoincrement())
+//   name       String?
+//   followedBy User[]    @relation("UserFollows")
+//   following  User[]    @relation("UserFollows")
+// }
+// In this schema:
+// User is our model.
+// id is a unique identifier for each user.
+// name is a field that can store the name of the user.
+// followedBy is a list that contains all the users that follow this user.
+// following is a list that contains all the users that this user is following.
+// The @relation("UserFollows") part is what establishes the self-relation. It tells Prisma that both followedBy and following are part of the same relation.
+// Prisma will handle the creation of a hidden table that connects users to each other for this many-to-many relationship. This hidden table will have two columns, each storing the id of a user, representing the follower and the following.
+// Explicit Many-to-Many Self-Relations
+// If you need to store additional information about the relationship, like when a user started following another user, you can define an explicit relation with an additional model:
+
+// model User {
+//   id         Int       @id @default(autoincrement())
+//   name       String?
+//   followedBy Follows[] @relation("following")
+//   following  Follows[] @relation("follower")
+// }
+
+// model Follows {
+//   follower    User @relation("follower", fields: [followerId], references: [id])
+//   followerId  Int
+//   following   User @relation("following", fields: [followingId], references: [id])
+//   followingId Int
+//   @@id([followerId, followingId])
+// }
+
+// ************************************************************************xxxxxx*************************
+
+model User {
+  id            String  @id @default(uuid())
+  firstName     String
+  lastName      String?
+  email         String  @unique
+  password      String?
+  profileImgURL String?
+  tweets        Tweet[]
+
+  followedBy User[] @relation("UserFollows")
+  following  User[] @relation("UserFollows")
+
+  comments   Comment[]
+  likedTweet Likes[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tweet {
+  id        String    @id @default(uuid())
+  content   String
+  image     String?
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  comments  Comment[]
+  likesBy   Likes[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Comment {
+  id          String   @id @default(uuid())
+  comment     String
+  commenter   User     @relation(fields: [commenterId], references: [id])
+  commenterId String
+  tweet       Tweet    @relation(fields: [tweetId], references: [id])
+  tweetId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Likes {
+  id            String   @id @default(uuid())
+  likedBy       User     @relation(fields: [likedByUserId], references: [id])
+  likedByUserId String
+  tweet         Tweet    @relation(fields: [tweetId], references: [id])
+  tweetId       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
