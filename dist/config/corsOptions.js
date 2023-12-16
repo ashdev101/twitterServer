@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.corsOptions = void 0;
 const allowedOrigins = [
-    'http://localhost:3000'
+    'https://tvtr.vercel.app'
 ];
 exports.corsOptions = {
     //@ts-ignore
